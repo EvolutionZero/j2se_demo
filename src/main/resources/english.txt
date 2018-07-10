@@ -1,0 +1,15 @@
+The PRSS-1 is China's first optical remote sensing satellite sold to Pakistan and the 17th satellite developed by the China Academy of Space Technology (CAST) for an overseas buyer.
+
+A scientific experiment satellite, PakTES-1A, developed by Pakistan, was sent into orbit via the same rocket.
+
+After entering orbit, the PRSS-1 is in good condition with its solar panels unfolded smoothly1, according to CAST.
+
+The PRSS-1 will be used for land and resources surveying, monitoring of natural disasters, agriculture research, urban construction and providing remote sensing information for the Belt and Road region.
+
+The satellite, which has a designed life of seven years, is equipped with two panchromatic/multispectral cameras, with a resolution up to a meter and a coverage2 range of 60 km.
+
+Designers say the two cameras are among the best exported remote sensing cameras made by China. They can be used to monitor plant diseases and pests.
+
+Each camera has independent image processing, storage and transmission capability3. The design of lossless compression could greatly improve the quality of the images, according to designers.
+
+A specially4 designed orbit will ensure the satellite operates steadily5 and will optimize6 the image quality.
