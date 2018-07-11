@@ -1,17 +1,185 @@
 package com.zero.j2se.demo.lambda;
 
 import com.sun.xml.internal.ws.util.StringUtils;
+import com.zero.j2se.demo.bean.Person;
+import com.zero.j2se.demo.utils.MathUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class LearnStream {
+
+    public static void useCollect(){
+        Supplier<Stream<String>> streamSupplier = () -> Stream.of("中国", "美国", "法国", "日本", "欧洲");
+
+        // 转数组
+        String[] countryArray = streamSupplier.get().toArray(String[]::new);
+
+        List<String> toList = streamSupplier.get().collect(Collectors.toList());
+        Set<String> toSet = streamSupplier.get().collect(Collectors.toSet());
+
+        // 指定集合类型
+        TreeSet<String> toTreeSet = streamSupplier.get().collect(Collectors.toCollection(TreeSet::new));
+
+        System.out.println("国家:" + streamSupplier.get().collect(Collectors.joining()));
+        System.out.println("国家:" + streamSupplier.get().collect(Collectors.joining(",")));
+
+
+        Supplier<Stream<Person>> mapStreamSupplier = () -> Stream.of(
+                new Person("鲁迅", "中国", "汉语",23),
+                new Person("冰心", "中国", "汉语",12),
+                new Person("莎士比亚", "英国", "英语",6),
+                new Person("雨果", "法国", "法语",8)
+        );
+
+        // 名字 -> 国家
+        Map<String, String> nameToCountry = mapStreamSupplier.get().collect(Collectors.toMap(Person::getName, Person::getCountry));
+        System.out.println("名字 -> 国家 : " + nameToCountry);
+
+        // 名字 -> 人
+        Map<String, Person> nameToPerson = mapStreamSupplier.get().collect(Collectors.toMap(Person::getName, Function.identity()));
+        System.out.println("名字 -> 人 : " + nameToPerson);
+
+        // 国家 -> 名字, 第三个参数控制当value冲突事如何处理
+        Map<String, String> countryToName = mapStreamSupplier.get().collect(Collectors.toMap(Person::getCountry, Person::getName, (existingValue, newValue) -> {
+            return existingValue;
+        }));
+        System.out.println("国家 -> 名字 : " + countryToName);
+
+        // 是否国内 -> 作家
+        Map<Boolean, List<Person>> partitioningByCountry = mapStreamSupplier.get().collect(Collectors.partitioningBy(p -> "中国".equals(p.getCountry())));
+        System.out.println("是否国内 -> 作家 : " + partitioningByCountry);
+
+        // 国家 -> 作家
+        Map<String, List<Person>> countryToPersons = mapStreamSupplier.get().collect(Collectors.groupingBy(Person::getCountry));
+        System.out.println("国家 -> 作者 : " + countryToPersons);
+
+        // 国家 -> 作家人数
+        Map<String, Long> countryToAuthors = mapStreamSupplier.get().collect(Collectors.groupingBy(Person::getCountry, Collectors.counting()));
+        System.out.println("国家 -> 作家人数 : " + countryToAuthors);
+
+        // 国家 -> 作品数
+        Map<String, Integer> countryToWorksNum = mapStreamSupplier.get().collect(Collectors.groupingBy(Person::getCountry, Collectors.summingInt(Person::getWorksNum)));
+        System.out.println("国家 -> 作品数 : " + countryToWorksNum);
+
+        // 国家 -> 作品数最多作家
+        Map<String, Optional<Person>> countryToMaxWorksNumAuthor = mapStreamSupplier.get().collect(Collectors.groupingBy(Person::getCountry, Collectors.maxBy(Comparator.comparing(Person::getWorksNum))));
+        System.out.println("国家 -> 作品数最多作家 : " + countryToMaxWorksNumAuthor);
+    }
+
+
+    public static void useOptional(){
+        String text = "A scientific experiment satellite, PakTES-1A, developed by Pakistan, was sent into orbit via the same rocket.";
+        Supplier<Stream<String>> streamSupplier = () -> Pattern.compile("[\\P{L}+]").splitAsStream(text);
+
+        // 如果找到特定字母开头的第一个单词就执行给定方法
+        streamSupplier.get().filter(w -> w.startsWith("P")).findFirst().ifPresent(word -> System.out.println("have word startWith P is " + word));
+
+        // 找出特定字母开头的第一个单词，如果没找到就返回else内容
+        System.out.println("P开头的单词：" + streamSupplier.get().filter(w -> w.startsWith("P")).findFirst().orElse("haven`t word startWith P!"));
+        System.out.println("Z开头的单词：" + streamSupplier.get().filter(w -> w.startsWith("Z")).findFirst().orElse("haven`t word startWith Z!"));
+
+        // 找出特定字母开头的第一个单词，如果没找到就执行给定方法
+        System.out.println("Z开头的单词：" + streamSupplier.get().filter(w -> w.startsWith("Z")).findFirst().orElseGet(()-> "function:haven`t word startWith Z!"));
+
+        // 找出特定字母开头的第一个单词，如果没找到就抛出异常
+//        System.out.println("Z开头的单词：" + streamSupplier.get().filter(w -> w.startsWith("Z")).findFirst().orElseThrow(NoSuchElementException::new);
+
+        // 创建一个空的可选值
+        Optional.empty();
+
+        // 创建一个可选值
+        Optional.of(4);
+
+        // ofNullable被设计成为null值和可选值的一座桥梁。如果obj不为null那么会返回Optional.of(obj),否则会返回Optional.empty()
+        Optional.ofNullable(4);
+
+        // 使用flatMap来组合可选值函数，只有当其中每个部分都成功时，整个流水线才成功
+        Optional<Double> result = Optional.of(-4).flatMap(MathUtils::inverse).flatMap(MathUtils::squareRoot);
+        result.ifPresent(r -> System.out.println(r));
+        Optional<Double> result2 = Optional.of(4).flatMap(MathUtils::inverse).flatMap(MathUtils::squareRoot);
+        result2.ifPresent(r -> System.out.println(r));
+    }
+
+    public static void useAggregation(){
+        String text = "A scientific experiment satellite, PakTES-1A, developed by Pakistan, was sent into orbit via the same rocket.";
+        Supplier<Stream<String>> streamSupplier = () -> Pattern.compile("[\\P{L}+]").splitAsStream(text);
+
+        // 找出长度最长的单词，如果存在就打印
+        streamSupplier.get().max(Comparator.comparing(word -> word.length())).ifPresent(word -> System.out.print("[" + word + "]"));
+
+        System.out.println();
+
+        // findFirst用于返回满足条件的第一个元素
+        streamSupplier.get().filter(word -> word.startsWith("P")).findFirst().ifPresent(word -> System.out.print("[" + word + "]"));
+
+        System.out.println();
+
+        // findAny相对于findFirst的区别在于，findAny不一定返回第一个，而是返回任意一个
+        streamSupplier.get().parallel().filter(word -> word.startsWith("P")).findAny().ifPresent(word -> System.out.print("[" + word + "]"));
+        System.out.println();
+
+        // 检测是否存在一个或多个满足指定的参数行为
+        System.out.println("是否包含P开头的单词：" +  streamSupplier.get().parallel().anyMatch(word -> word.startsWith("P")));
+
+        // 检测是否全部都满足指定的参数行为
+        System.out.println("是否都包含P开头的单词：" +  streamSupplier.get().parallel().allMatch(word -> word.startsWith("P")));
+
+        // 检测是否不存在满足指定行为的元素
+        System.out.println("是否都不包含P开头的单词：" +  streamSupplier.get().parallel().noneMatch(word -> word.startsWith("P")));
+
+        // 1,2,3,4...,100
+        Stream<Integer> serial = Stream.iterate(1, n -> n + 1).limit(100);
+        serial.reduce((x, y) -> x + y).ifPresent(sum -> System.out.println("1-100求和结果:" + sum));
+
+        Integer wordLen = streamSupplier.get().reduce(0, (total, word) -> total + word.length(), (t1, t2) -> t1 + t2);
+        System.out.println("单词总长：" + wordLen);
+
+    }
+
+
+    public static void useSorted(){
+        String text = "A scientific experiment satellite, PakTES-1A, developed by Pakistan, was sent into orbit via the same rocket.";
+        //  从小到大排序
+        Stream<String> words = Pattern.compile("[\\P{L}+]").splitAsStream(text);
+        words = words.sorted(Comparator.comparing(String::length));
+        words.forEach(word -> System.out.print(word + " "));
+        System.out.println();
+
+        // 从大到小排序
+        words = Pattern.compile("[\\P{L}+]").splitAsStream(text);
+
+        // Collections,sort会对原有集合排序， Stream.sorted会返回一个新的流
+        words = words.sorted(Comparator.comparing(String::length).reversed());
+        words.forEach(word -> System.out.print(word + " "));
+        System.out.println();
+    }
+
+    public static void useCombind(){
+        // 返回一个长度为n的新流，如果长度小于n就返回原始流
+        Stream<Double> randoms = Stream.generate(Math::random).limit(10);
+        randoms.forEach(d -> System.out.print(d + " "));
+        System.out.println();
+
+        String text = "A scientific experiment satellite, PakTES-1A, developed by Pakistan, was sent into orbit via the same rocket.";
+        // 丢失前n个元素
+        Stream<String> words = Pattern.compile("[\\P{L}+]").splitAsStream(text).skip(2);
+        words.forEach(word -> System.out.print(word + " "));
+        System.out.println();
+
+        // 将两个流连接在一起，第一个流不能是无限流
+        Stream<String> sayHi = Stream.concat(Stream.of("Hello "), Stream.of("World"));
+        sayHi.forEach(word -> System.out.print("[" + word + "]"));
+        System.out.println();
+    }
 
     public static void useMap(){
         String text = "A scientific experiment satellite, PakTES-1A, developed by Pakistan, was sent into orbit via the same rocket.";
@@ -39,6 +207,7 @@ public class LearnStream {
                 .distinct()
                 .collect(Collectors.toList());
         expectResult.stream().forEach(letter -> System.out.printf(letter + " "));
+        System.out.println();
     }
 
 
@@ -90,5 +259,10 @@ public class LearnStream {
         createStream();
         useMap();
         useFlatMap();
+        useCombind();
+        useSorted();
+        useAggregation();
+        useOptional();
+        useCollect();
     }
 }

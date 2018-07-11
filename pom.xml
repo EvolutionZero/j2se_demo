@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.victoria</groupId>
-    <artifactId>xshop</artifactId>
+    <artifactId>j2se_demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>xshop</name>
+    <name>j2se_demo</name>
     <description>Demo project for Spring Boot</description>
 
 
@@ -25,7 +25,11 @@
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.22</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
