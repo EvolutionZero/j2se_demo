@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.TreeMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LearnCollection {
 
@@ -18,9 +19,12 @@ public class LearnCollection {
 	 * 最佳实践
 	 */
 	public static void bestPractise() {
-		// 如果指定了大小，会选用Array而非ArrayList
+		// 如果长度已知，建议选用Array而非ArrayList
 		String[] array = new String[1024];
-		ArrayList<String> arrayList = new ArrayList<>();
+		
+		// 如果长度已知，初始化数组建议指定容量
+		// 默认容量为10, 每日扩容扩容到原来的1.5倍
+		ArrayList<String> arrayList = new ArrayList<>(1024);
 		
 		// 想根据插入顺序遍历一个Map，使用TreeMap
 		// 使用JDK提供的不可变类作为Map的key，可以避免自己实现hashCode()和equals()
@@ -60,7 +64,8 @@ public class LearnCollection {
 	 * 
 	 */
 	public static void useSet() {
-		CopyOnWriteArrayList<Object> copyOnWriteArrayList = new CopyOnWriteArrayList<>();
+		// 底层使用HashMap
+		HashSet<String> hashSet = new HashSet<>();
 	}
 	
 	/**
@@ -117,8 +122,20 @@ public class LearnCollection {
 	 * 2.Map接口不继承Collection接口
 	 */
 	public static void useMap() {
-		// 容量总是2的幂，所以如果知道的容量大小和负荷系数，在初始化阶段去指定它是可以防止多次扩容导致的性能损失。
+		// 默认容量是16, 最大容量是2的30次方，默认负荷因子是0.75
+		// 容量总是2的幂，所以如果知道的容量大小和负荷因子，在初始化阶段去指定它是可以防止多次扩容导致的性能损失。
+		// 若发生哈希冲突，则用单链表存储，且使用头插法。因为后面插入的Entry被查找的可能性更大。java8在链表元素大于8的时候自动转换成红黑树，效率更高。
+		// HashMap达到负载因子后，自动双倍扩容并重新计算哈希值。并且长度必须为16或者2的幂次。若不是16或者2的幂次，位运算的结果不够均匀分布，不符合Hash算法均匀分布原则。
+		// HashMap线程不安全，因为没有加锁。HashMap在接近临界点时，若多个线程进行put操作，都会进行扩容(resize)和重新计算Hash(reHash)，而重新计算Hash在并发情况下可能会形成链表环。当调用get方法获取该元素会发生死循环，严重会导致CPU100%占用。
+		// Java7 是先扩容后插入新值的，Java8 先插值再扩容，不过这个不重要。
 		HashMap<String, String> map = new HashMap<String, String>(1024, 0.8f);
+		
+		// 使用Segment数组作为分段锁，既保证线程安全又保持性能
+		// 默认的并发度为16,并发度可以理解为程序运行时能够同时更新ConccurentHashMap且不产生锁竞争的最大线程数，实际上就是ConcurrentHashMap中的分段锁个数，即Segment[]的数组长度。
+		// 使用大于等于该值的最小2幂指数作为实际并发度。如果并发度设置的过小，会带来严重的锁竞争问题；如果并发度设置的过大，从而引起程序性能下降。
+		// JDK7中除了第一个Segment之外，剩余的Segments采用的是延迟初始化的机制：每次put之前都需要检查key对应的Segment是否为null，如果是则调用ensureSegment()以确保对应的Segment被创建。
+		// 在JDK8中进行了巨大改动,它摒弃了Segment（锁段）的概念，而是启用了一种全新的方式实现,利用CAS算法。它沿用了与它同时期的HashMap版本的思想，底层依然由“数组”+链表+红黑树的方式思想(JDK7与JDK8中HashMap的实现)，但是为了做到并发，又增加了很多辅助的类，例如TreeBin，Traverser等对象内部类。
+		ConcurrentHashMap<String, String> concurrentHashMap = new ConcurrentHashMap<>();
 	}
 	
 	@Override
