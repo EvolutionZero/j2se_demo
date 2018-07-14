@@ -1,4 +1,4 @@
-package com.zero.j2se.demo.lambda;
+package com.zero.j2se.demo.stream;
 
 import java.io.File;
 import java.math.BigInteger;
