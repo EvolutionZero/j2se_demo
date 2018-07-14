@@ -23,6 +23,7 @@ public class LearnCollection {
 		ArrayList<String> arrayList = new ArrayList<>();
 		
 		// 想根据插入顺序遍历一个Map，使用TreeMap
+		// 使用JDK提供的不可变类作为Map的key，可以避免自己实现hashCode()和equals()
 		TreeMap<String, String> treeMap = new TreeMap<>();
 	}
 	
