@@ -4,13 +4,18 @@ import java.util.Arrays;
 
 import com.zero.j2se.demo.bean.Person;
 
+/**
+ * 
+ * 类初始化顺序：父类静态代变量 -> 父类静态代码块 -> 子类静态变量 -> 子类静态代码块 -> 父类非静态变量（父类实例成员变量） -> 父类构造函数 -> 子类非静态变量（子类实例成员变量） -> 子类构造函数
+ *
+ */
 public class LearnBase {
 
 	// 定义一个基本数据类型的变量，一个对象的引用，还有就是函数调用的现场保存都使用内存中的栈空间.栈空间操作起来最快但是栈很小
 	private int param;
 	private int[] array;
 	
-	public static void useBoxed() {
+	public static void learn() {
 		
 		// 通过new关键字和构造器创建的对象放在堆空间.通常大量的对象都是放在堆空间
 		Person person = new Person("鲁迅", "中国", "汉语",23);
@@ -35,8 +40,11 @@ public class LearnBase {
 		Integer int1 = new Integer(120);
 		Integer int2 = new Integer(1024);
 		
+		// 不是线程安全的操作。它涉及到多个指令，如读取变量值，增加，然后存储回内存，这个过程可能会出现多个线程交叉。
+		num++;
 		
-		
+		// false，因为有些浮点数不能完全精确的表示出来。
+		System.out.println(3*0.1 == 0.3);
 	}
 
 	/**

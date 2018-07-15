@@ -122,6 +122,7 @@ public class LearnCollection {
 	 * 2.Map接口不继承Collection接口
 	 */
 	public static void useMap() {
+		// 底层数据结构是数组+链表
 		// 默认容量是16, 最大容量是2的30次方，默认负荷因子是0.75
 		// 容量总是2的幂，所以如果知道的容量大小和负荷因子，在初始化阶段去指定它是可以防止多次扩容导致的性能损失。
 		// 若发生哈希冲突，则用单链表存储，且使用头插法。因为后面插入的Entry被查找的可能性更大。java8在链表元素大于8的时候自动转换成红黑树，效率更高。
@@ -129,6 +130,10 @@ public class LearnCollection {
 		// HashMap线程不安全，因为没有加锁。HashMap在接近临界点时，若多个线程进行put操作，都会进行扩容(resize)和重新计算Hash(reHash)，而重新计算Hash在并发情况下可能会形成链表环。当调用get方法获取该元素会发生死循环，严重会导致CPU100%占用。
 		// Java7 是先扩容后插入新值的，Java8 先插值再扩容，不过这个不重要。
 		HashMap<String, String> map = new HashMap<String, String>(1024, 0.8f);
+		
+		// 基于红黑树实现。TreeMap没有调优选项，因为该树总处于平衡状态。 
+		// 适用于按自然顺序或自定义顺序遍历键(key)。
+		TreeMap<String, String> treeMap = new TreeMap<>();
 		
 		// 使用Segment数组作为分段锁，既保证线程安全又保持性能
 		// 默认的并发度为16,并发度可以理解为程序运行时能够同时更新ConccurentHashMap且不产生锁竞争的最大线程数，实际上就是ConcurrentHashMap中的分段锁个数，即Segment[]的数组长度。
