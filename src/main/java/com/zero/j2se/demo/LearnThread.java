@@ -8,4 +8,14 @@ package com.zero.j2se.demo;
  */
 public class LearnThread {
 
+	/**
+	 * 原理:
+	 * ThreadLocal为每个线程维护一个本地变量,采用空间换时间，它用于线程间的数据隔离，为每一个使用该变量的线程提供一个副本，每个线程都可以独立地改变自己的副本，而不会和其他线程的副本冲突。
+	 * ThreadLocal类中维护一个Map，用于存储每一个线程的变量副本，Map中元素的键为线程对象，而值为对应线程的变量副本。
+	 * 
+	 * 总结：
+	 * 1.通过访问副本来运行业务，这样的结果是耗费了内存，但大大减少了线程同步所带来性能消耗，也减少了线程并发控制的复杂度。
+	 * 2.ThreadLocal不能使用原子类型，只能使用Object类型。
+	 */
+	private ThreadLocal<String> threadLocal = new ThreadLocal<>();
 }
