@@ -6,6 +6,19 @@ import com.zero.j2se.demo.bean.Person;
 
 /**
  * 
+ * 
+ * 1、JVM、JRE和JDK的区别：
+ *   JVM(Java Virtual Machine):java虚拟机，用于保证java的跨平台的特性。java语言是跨平台，jvm不是跨平台的。
+ *   JRE(Java Runtime Environment):java的运行环境,包括jvm+java的核心类库。	
+ *   JDK(Java Development Kit):java的开发工具,包括jre+开发工具
+ *   
+ * 环境path是配置Windows可执行文件的搜索路径，即扩展名为.exe的程序文件所在的目录，用于指定DOS窗口命令的路径。
+ * classpath是配置class文件所在的目录，用于指定类搜索路径，JVM就是通过它来寻找该类的class类文件的。
+ * 
+ * Throwable：可抛出的。
+    |--Error：错误，一般情况下，不编写针对性的代码进行处理，通常是jvm发生的，需要对程序进行修正。
+    |--Exception：异常，可以有针对性的处理方式
+ *
  * 类初始化顺序：父类静态代变量 -> 父类静态代码块 -> 子类静态变量 -> 子类静态代码块 -> 父类非静态变量（父类实例成员变量） -> 父类构造函数 -> 子类非静态变量（子类实例成员变量） -> 子类构造函数
  *
  */
@@ -45,6 +58,14 @@ public class LearnBase {
 		
 		// false，因为有些浮点数不能完全精确的表示出来。
 		System.out.println(3*0.1 == 0.3);
+		
+		try {
+			
+		}catch(Exception e) {
+			System.exit(0); //退出jvm，只有这种情况finally不执行。
+		} finally{
+			
+		}
 	}
 
 	/**

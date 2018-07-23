@@ -28,12 +28,21 @@ public class LearnThread extends Thread implements Runnable{
 	
 	/**
 	 * 原理:
-	 * ThreadLocal为每个线程维护一个本地变量,采用空间换时间，它用于线程间的数据隔离，为每一个使用该变量的线程提供一个副本，每个线程都可以独立地改变自己的副本，而不会和其他线程的副本冲突。
-	 * ThreadLocal类中维护一个Map，用于存储每一个线程的变量副本，Map中元素的键为线程对象，而值为对应线程的变量副本。
+	 * 每个Thread 维护一个 ThreadLocalMap 映射表，这个映射表的 key 是 ThreadLocal实例本身，value 是真正需要存储的 Object。也就是说 ThreadLocal 本身并不存储值，它只是作为一个 key 来让线程从 ThreadLocalMap 获取 value。
+	 * 值得注意的是 ThreadLocalMap 是使用 ThreadLocal 的弱引用作为 Key 的，弱引用的对象在 GC 时会被回收。
 	 * 
 	 * 总结：
 	 * 1.通过访问副本来运行业务，这样的结果是耗费了内存，但大大减少了线程同步所带来性能消耗，也减少了线程并发控制的复杂度。
 	 * 2.ThreadLocal不能使用原子类型，只能使用Object类型。
+	 * 
+	 * 内存泄漏点:
+	 * ThreadLocalMap使用ThreadLocal的弱引用作为key，如果一个ThreadLocal没有外部强引用来引用它，那么系统 GC 的时候，这个ThreadLocal势必会被回收，这样一来，ThreadLocalMap中就会出现key为null的Entry，就没有办法访问这些key为null的Entry的value，
+	 * 如果当前线程再迟迟不结束的话，这些key为null的Entry的value就会一直存在一条强引用链：Thread Ref -> Thread -> ThreaLocalMap -> Entry -> value永远无法回收，造成内存泄漏。
+	 * ThreadLocal内存泄漏的根源是由于ThreadLocalMap的生命周期跟Thread一样长，如果没有手动删除对应key就会导致内存泄漏，而不是因为弱引用。
+	 * 
+	 * ThreadLocal 最佳实践:
+	 * 每次使用完ThreadLocal，都调用它的remove()方法，清除数据。
+	 * 
 	 */
 	private ThreadLocal<String> threadLocal = new ThreadLocal<>();
 	
@@ -53,6 +62,15 @@ public class LearnThread extends Thread implements Runnable{
 	 *	不保证原子性
 	 */
 	private volatile int param;
+	
+	public static void main(String[] args) {
+		/**
+		 * 用start方法来启动线程，真正实现了多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，
+		 * 一旦得到cpu时间片，就开始执行run()方法，这里方法run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
+		 */
+		new Thread(new LearnThread()).start();
+	}
+	
 	
 	/**
 	 * 线程5状态：
@@ -112,4 +130,23 @@ public class LearnThread extends Thread implements Runnable{
 		
 	}
 	
+	public void syncBlockCode() {
+		int a = 0;
+		synchronized (this) {
+
+			for (int i = 0; i < 5; i++) {
+
+				System.out.println(Thread.currentThread().getName() + "synchronized loop " + i);
+
+			}
+		}
+		int b = 1;
+	}
+	
+	/**
+	 * 
+	 */
+	public void useAQS() {
+		
+	}
 }
