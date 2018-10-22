@@ -1,28 +1,19 @@
 package com.zero.j2se.demo.lambda;
 
+import com.sun.xml.internal.ws.util.StringUtils;
+import com.zero.j2se.demo.bean.Person;
+import com.zero.j2se.demo.utils.MathUtils;
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.IntSummaryStatistics;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import org.apache.commons.io.FileUtils;
-
-import com.sun.xml.internal.ws.util.StringUtils;
-import com.zero.j2se.demo.bean.Person;
-import com.zero.j2se.demo.utils.MathUtils;
 
 public class LearnStream {
 
