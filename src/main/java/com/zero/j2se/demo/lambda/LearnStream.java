@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
+
 public class LearnStream {
 
 	public static void useOriginalStream() {
@@ -53,7 +57,7 @@ public class LearnStream {
         Set<String> toSet = streamSupplier.get().collect(Collectors.toSet());
 
         // 指定集合类型
-        TreeSet<String> toTreeSet = streamSupplier.get().collect(Collectors.toCollection(TreeSet::new));
+        TreeSet<String> toTreeSet = streamSupplier.get().collect(toCollection(TreeSet::new));
 
         System.out.println("国家:" + streamSupplier.get().collect(Collectors.joining()));
         System.out.println("国家:" + streamSupplier.get().collect(Collectors.joining(",")));
@@ -97,8 +101,18 @@ public class LearnStream {
         System.out.println("国家 -> 作品数 : " + countryToWorksNum);
 
         // 国家 -> 作品数最多作家
-        Map<String, Optional<Person>> countryToMaxWorksNumAuthor = mapStreamSupplier.get().collect(Collectors.groupingBy(Person::getCountry, Collectors.maxBy(Comparator.comparing(Person::getWorksNum))));
+        Map<String, Optional<Person>> countryToMaxWorksNumAuthor = mapStreamSupplier.get().collect(Collectors.groupingBy(Person::getCountry, Collectors.maxBy(comparing(Person::getWorksNum))));
         System.out.println("国家 -> 作品数最多作家 : " + countryToMaxWorksNumAuthor);
+
+        ArrayList<Person> distinctPerson =  Stream.of(
+                new Person("鲁迅", "中国", "汉语",23),
+                new Person("鲁迅", "中国", "汉语",23),
+                new Person("冰心", "中国", "汉语",12),
+                new Person("莎士比亚", "英国", "英语",6),
+                new Person("雨果", "法国", "法语",8)
+        ).collect(collectingAndThen(
+                toCollection(() -> new TreeSet<>(comparing(Person::getName))), ArrayList::new));
+        System.out.println("根据名字去重:" + distinctPerson);
     }
 
 
@@ -133,6 +147,14 @@ public class LearnStream {
         result.ifPresent(r -> System.out.println(r));
         Optional<Double> result2 = Optional.of(4).flatMap(MathUtils::inverse).flatMap(MathUtils::squareRoot);
         result2.ifPresent(r -> System.out.println(r));
+
+        // Optional的实践用法
+        String test = null;
+        Optional.ofNullable(test).map(String::toUpperCase).map(s -> s.indexOf(':')).ifPresent(System.out::println);
+
+        Person condition = new Person();
+        Optional<Person> u = Optional.ofNullable(new Person());
+        condition.setName(u.map(Person::getName).orElse(""));
     }
 
     public static void useAggregation(){
@@ -140,7 +162,7 @@ public class LearnStream {
         Supplier<Stream<String>> streamSupplier = () -> Pattern.compile("[\\P{L}+]").splitAsStream(text);
 
         // 找出长度最长的单词，如果存在就打印
-        streamSupplier.get().max(Comparator.comparing(word -> word.length())).ifPresent(word -> System.out.print("[" + word + "]"));
+        streamSupplier.get().max(comparing(word -> word.length())).ifPresent(word -> System.out.print("[" + word + "]"));
 
         System.out.println();
 
@@ -176,7 +198,7 @@ public class LearnStream {
         String text = "A scientific experiment satellite, PakTES-1A, developed by Pakistan, was sent into orbit via the same rocket.";
         //  从小到大排序
         Stream<String> words = Pattern.compile("[\\P{L}+]").splitAsStream(text);
-        words = words.sorted(Comparator.comparing(String::length));
+        words = words.sorted(comparing(String::length));
         words.forEach(word -> System.out.print(word + " "));
         System.out.println();
 
@@ -184,7 +206,7 @@ public class LearnStream {
         words = Pattern.compile("[\\P{L}+]").splitAsStream(text);
 
         // Collections,sort会对原有集合排序， Stream.sorted会返回一个新的流
-        words = words.sorted(Comparator.comparing(String::length).reversed());
+        words = words.sorted(comparing(String::length).reversed());
         words.forEach(word -> System.out.print(word + " "));
         System.out.println();
     }

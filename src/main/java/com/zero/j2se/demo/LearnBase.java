@@ -1,8 +1,8 @@
 package com.zero.j2se.demo;
 
-import java.util.Arrays;
-
 import com.zero.j2se.demo.bean.Person;
+
+import java.util.Arrays;
 
 /**
  * 

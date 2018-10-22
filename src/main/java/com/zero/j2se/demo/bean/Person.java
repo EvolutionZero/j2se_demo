@@ -11,6 +11,9 @@ public class Person {
     private int worksNum;
 
 
+    public Person() {
+    }
+
     public Person(String name, String country, String language, int worksNum) {
         this.name = name;
         this.country = country;
@@ -53,5 +56,16 @@ public class Person {
     public Person setWorksNum(int worksNum) {
         this.worksNum = worksNum;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Person{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", country='").append(country).append('\'');
+        sb.append(", language='").append(language).append('\'');
+        sb.append(", worksNum=").append(worksNum);
+        sb.append('}');
+        return sb.toString();
     }
 }
